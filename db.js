@@ -1,4 +1,5 @@
 const mysql = require('mysql');
+
 const connection = mysql.createConnection({
     host: 'mysql-matthieu-73.alwaysdata.net',
     user: '339794_aymeric',
