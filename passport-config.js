@@ -3,34 +3,31 @@ const bcrypt = require('bcrypt');
 const connection = require('./db');
 
 function initialize(passport) {
-    const authenticateUser = (email, password, done) => {
-        // Requête à la base de données pour trouver l'utilisateur
-        connection.query('SELECT * FROM users WHERE email = ?', [email], async (err, result) => {
+    const authenticateUser = (username, password, done) => {
+        // Recherche de l'utilisateur par username
+        connection.query('SELECT * FROM users WHERE mail = ?', [username], (err, result) => {
             if (err) { return done(err); }
+            if (result.length == 0) { return done(null, false, { message: 'No user with that email' }); }
 
-            if (result.length > 0) {
-                const user = result[0];
+            const user = result[0];
 
-                try {
-                    if (await bcrypt.compare(password, user.password)) {
-                        return done(null, user);
-                    } else {
-                        return done(null, false, { message: 'Password incorrect' });
-                    }
-                } catch (e) {
-                    return done(e);
+            // Comparaison du mot de passe haché
+            bcrypt.compare(password, user.password, (err, isMatch) => {
+                if (err) { return done(err); }
+                if (isMatch) {
+                    return done(null, user);
+                } else {
+                    return done(null, false, { message: 'Password incorrect' });
                 }
-            } else {
-                return done(null, false, { message: 'No user with that email' });
-            }
+            });
         });
     };
 
-    passport.use(new LocalStrategy({ usernameField: 'email' }, authenticateUser));
+    passport.use(new LocalStrategy({ usernameField: 'username' }, authenticateUser));
 
-    passport.serializeUser((user, done) => done(null, user.id));
+    passport.serializeUser((user, done) => done(null, user.user_id));
     passport.deserializeUser((id, done) => {
-        connection.query('SELECT * FROM users WHERE id = ?', [id], (err, result) => {
+        connection.query('SELECT * FROM users WHERE user_id = ?', [id], (err, result) => {
             done(err, result[0]);
         });
     });

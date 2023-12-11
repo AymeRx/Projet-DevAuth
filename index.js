@@ -4,6 +4,8 @@ const passport = require('passport');
 
 const app = express();
 
+app.use(express.urlencoded({ extended: false })); // Pour parser les données de formulaire
+
 // Passport configuration
 const initializePassport = require('./passport-config');
 initializePassport(passport);

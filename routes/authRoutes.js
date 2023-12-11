@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const router = express.Router();
 const connection = require('../db');
+const passport = require('passport');
+
 
 router.use(bodyParser.urlencoded({ extended: true }));
 
@@ -58,6 +60,12 @@ router.post('/register', async (req, res) => {
 router.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, '../html/login.html'));
 });
+
+router.post('/login', passport.authenticate('local', {
+    successRedirect: '/dashboard', // rediriger vers le dashboard en cas de succès
+    failureRedirect: '/login', // rediriger vers login en cas d'échec
+    failureFlash: true // activer les messages flash en cas d'échec
+}));
 
 // Route pour la page de tableau de bord
 router.get('/dashboard', (req, res) => {
