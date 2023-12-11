@@ -58,7 +58,11 @@ router.post('/register', async (req, res) => {
 
 // Route pour la page de connexion
 router.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, '../html/login.html'));
+    if(req.isAuthenticated()){
+        res.sendFile(path.join(__dirname, '../html/dashboard.html'));
+    }else{
+        res.sendFile(path.join(__dirname, '../html/login.html'));
+    }
 });
 
 router.post('/login', passport.authenticate('local', {
