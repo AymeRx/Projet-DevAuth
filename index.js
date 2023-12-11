@@ -1,16 +1,26 @@
-const mysql = require('mysql');
+const express = require('express');
+const session = require('express-session');
+const passport = require('passport');
 
-const connection = mysql.createConnection({
-    host: 'mysql-matthieu-73.alwaysdata.net', 
-    user: '339794_aymeric',
-    password: '339794_aymeric_projet_dev_auth',
-    database: 'matthieu-73_projet_dev_auth'
+const app = express();
+
+// Passport configuration
+const initializePassport = require('./passport-config');
+initializePassport(passport);
+
+app.use(session({
+    secret: 'secret',
+    resave: false,
+    saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Routes
+app.use(require('./routes/authRoutes'));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
-
-connection.connect((err) => {
-    if(err) throw err;
-    console.log('Connected!');
-}
-);
-
-module.exports = connection;
