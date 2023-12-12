@@ -1,13 +1,13 @@
 const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
-
+const authRoutes = require('./src/routes/authRoutes');
+const initializePassport = require('./src/utils/passport-config');
 const app = express();
+const path = require('path');
 
-app.use(express.urlencoded({ extended: false })); // Pour parser les données de formulaire
-
-// Passport configuration
-const initializePassport = require('./passport-config');
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.urlencoded({ extended: false }));
 initializePassport(passport);
 
 app.use(session({
@@ -19,8 +19,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Routes
-app.use(require('./routes/authRoutes'));
+app.use(authRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
