@@ -28,4 +28,15 @@ router.get('/dashboard', authController.checkAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/html/dashboard.html'));
 });
 
+// Route pour démarrer l'authentification Facebook
+router.get('/auth/facebook', passport.authenticate('facebook'));
+
+// Route de callback après l'authentification Facebook
+router.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/login' }),
+    (req, res) => {
+        // Logique de succès, par exemple redirection vers le tableau de bord
+        res.redirect('/dashboard');
+    }
+);
+
 module.exports = router;
