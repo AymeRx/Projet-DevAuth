@@ -2,11 +2,12 @@ const bcrypt = require('bcrypt');
 const userModel = require('../models/userModel');
 
 exports.register = async (req, res) => {
-    const { username, password } = req.body;
+    const { email, password, firstName, lastName } = req.body;
     try {
+        const name = firstName +  ' ' + lastName;
         const hashedPassword = await bcrypt.hash(password, 10);
-        await userModel.createUser(username, hashedPassword);
-        res.send(`Inscription réussie ! Username: ${username}`);
+        await userModel.createUser(email, hashedPassword, name);
+        res.send(`Inscription réussie ! Username: ${email}`);
     } catch (error) {
         console.error('Erreur lors de l\'inscription :', error);
         res.status(500).send('Erreur lors de l\'inscription.');
