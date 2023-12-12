@@ -4,6 +4,14 @@ const router = express.Router();
 const authController = require('../controllers/authController.js');
 const passport = require('passport');
 
+router.get('/logout', (req, res) => {
+    req.logout(function(err) {
+        if (err) { return next(err); }
+        res.redirect('/login');  // Rediriger l'utilisateur vers la page de connexion
+    });
+});
+
+
 router.get('/register', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/html/register.html'));
 });
@@ -38,5 +46,6 @@ router.get('/auth/facebook/callback', passport.authenticate('facebook', { failur
         res.redirect('/dashboard');
     }
 );
+
 
 module.exports = router;
