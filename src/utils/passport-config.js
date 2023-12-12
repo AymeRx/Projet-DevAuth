@@ -1,5 +1,6 @@
 const LocalStrategy = require('passport-local').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const bcrypt = require('bcrypt');
 const connection = require('../db');
 const User = require('../models/userModel');
@@ -39,7 +40,6 @@ module.exports = function initialize(passport) {
                     return done(null, result[0]);
                 } else {
                     // Créez un nouvel utilisateur
-                    console.log(profile.id);
                     const newUserQuery = 'INSERT INTO users (other_app_id, other_app_label, name) VALUES (?, ?, ?)';
                     connection.query(newUserQuery, [profile.id, 'facebook', profile.displayName], (err, result) => {
                         if (err) { return done(err); }
@@ -55,6 +55,40 @@ module.exports = function initialize(passport) {
             return done(err);
         }
     }));
+
+
+    passport.use(new GoogleStrategy({
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: "/auth/google/callback"
+    },
+    function(accessToken, refreshToken, profile, done) {
+        // Ici, vous vérifiez si l'utilisateur existe déjà dans votre base de données
+        try {
+            connection.query('SELECT * FROM users WHERE other_app_id = ?', [profile.id], (err, result) => {
+                if (err) { return done(err); }
+    
+                if (result.length > 0) {
+                    // L'utilisateur existe déjà, connectez l'utilisateur
+                    return done(null, result[0]);
+                } else {
+                    // Créez un nouvel utilisateur
+                    const newUserQuery = 'INSERT INTO users (other_app_id, other_app_label, name) VALUES (?, ?, ?)';
+                    connection.query(newUserQuery, [profile.id, 'google', profile.displayName], (err, result) => {
+                        if (err) { return done(err); }
+                        const newUser = {
+                            user_id: result.insertId,
+                            other_app_id: profile.id
+                        };
+                        return done(null, newUser);
+                    });
+                }
+            });
+        } catch (err) {
+            return done(err);
+        }
+    }));
+
 
     // Sérialisation et Désérialisation
     passport.serializeUser((user, done) => done(null, user.user_id));

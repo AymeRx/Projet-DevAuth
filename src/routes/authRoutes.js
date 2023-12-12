@@ -48,4 +48,17 @@ router.get('/auth/facebook/callback', passport.authenticate('facebook', { failur
 );
 
 
+// Route pour démarrer l'authentification Google
+router.get('/auth/google',
+    passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+// Route de callback après l'authentification Google
+router.get('/auth/google/callback', 
+    passport.authenticate('google', { failureRedirect: '/login' }),
+    (req, res) => {
+        // Logique de succès, par exemple redirection vers le tableau de bord
+        res.redirect('/dashboard');
+    });
+
+
 module.exports = router;
