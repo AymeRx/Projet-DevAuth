@@ -14,22 +14,22 @@ exports.createUser = (username, hashedPassword) => {
     });
 };
 
-exports.getMaxIdUser = () => {
-    let user_id = 0;  
+// exports.getMaxIdUser = () => {
+//     let user_id = 0;  
 
-    // Récupération du maximum user_id
-    const sql_max_user_id = 'SELECT max(user_id) AS max_user_id from users';
-    const maxUserIdResult = connection.query(sql_max_user_id, (err, result) => {
-        if (err) {
-            reject(err);
-        } else {
-            resolve(result);
-        }
-    });
+//     // Récupération du maximum user_id
+//     const sql_max_user_id = 'SELECT max(user_id) AS max_user_id from users';
+//     const maxUserIdResult = connection.query(sql_max_user_id, (err, result) => {
+//         if (err) {
+//             reject(err);
+//         } else {
+//             resolve(result);
+//         }
+//     });
 
-    user_id = maxUserIdResult[0].max_user_id + 1;
+//     user_id = maxUserIdResult[0].max_user_id + 1;
 
-    return user_id;
-}
+//     return user_id;
+// }
 
 // Ajoutez ici d'autres fonctions pour interagir avec la table des utilisateurs
