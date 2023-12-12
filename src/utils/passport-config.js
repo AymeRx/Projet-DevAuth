@@ -40,7 +40,7 @@ module.exports = function initialize(passport) {
                 } else {
                     // Créez un nouvel utilisateur
                     console.log(profile.id);
-                    const newUserQuery = 'INSERT INTO users (other_app_id, other_app, name) VALUES (?, ?, ?)';
+                    const newUserQuery = 'INSERT INTO users (other_app_id, other_app_label, name) VALUES (?, ?, ?)';
                     connection.query(newUserQuery, [profile.id, 'facebook', profile.displayName], (err, result) => {
                         if (err) { return done(err); }
                         const newUser = {
