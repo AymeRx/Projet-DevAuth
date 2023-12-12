@@ -31,7 +31,7 @@ module.exports = function initialize(passport) {
         callbackURL: "http://localhost:3000/auth/facebook/callback"
     }, async (accessToken, refreshToken, profile, done) => {
         try {
-            connection.query('SELECT * FROM users WHERE facebook_id = ?', [profile.id], (err, result) => {
+            connection.query('SELECT * FROM users WHERE other_app_id = ?', [profile.id], (err, result) => {
                 if (err) { return done(err); }
     
                 if (result.length > 0) {
@@ -39,10 +39,14 @@ module.exports = function initialize(passport) {
                     return done(null, result[0]);
                 } else {
                     // Créez un nouvel utilisateur
-                    const newUserQuery = 'INSERT INTO users (mail, facebook_id) VALUES (?, ?)';
-                    connection.query(newUserQuery, [profile.emails[0].value, profile.id], (err, result) => {
+                    console.log(profile.id);
+                    const newUserQuery = 'INSERT INTO users (user_id, other_app_id) VALUES (?, ?)';
+                    connection.query(newUserQuery, [User.getMaxIdUser(), profile.id], (err, result) => {
                         if (err) { return done(err); }
-                        const newUser = { user_id: result.insertId, mail: profile.emails[0].value, facebook_id: profile.id };
+                        const newUser = {
+                            user_id: result.insertId,
+                            other_app_id: profile.id
+                        };
                         return done(null, newUser);
                     });
                 }
