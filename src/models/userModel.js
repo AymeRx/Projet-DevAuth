@@ -57,3 +57,22 @@ exports.enable2fa = (userId) => {
         });
     });
 };
+
+exports.get2FaSecretUserById = (userId) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT * FROM users WHERE user_id = ? and 2fa_secret=NULL';
+        connection.query(sql, [userId], (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                console.log(result);
+                if (result && result.length > 0) {
+                    resolve(false);
+                }else{
+                    resolve(true);
+                }
+            }
+        });
+    });
+};
+

@@ -4,6 +4,7 @@ const router = express.Router();
 const app = express();
 const authController = require('../controllers/authController.js');
 const blogModel = require('../models/blogModel.js');
+const userModel = require('../models/userModel.js');
 const passport = require('passport');
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -26,7 +27,7 @@ router.get('/login', (req, res) => {
     if (req.isAuthenticated()) {
         // verification si le 2fa est activé
         if (req.user.is2faEnabled) {
-            res.redirect('/verify-2fa');
+            res.redirect('/test-login');
         } else {
             res.redirect('/dashboard');
         }
@@ -35,8 +36,17 @@ router.get('/login', (req, res) => {
     }
 });
 
+router.get("/test-login", authController.checkAuthenticated, async (req, res) => {
+    // verification si le 2fa est activé
+    if (req.user.is2faEnabled) {
+        res.redirect('/verify-2fa');
+    } else {
+        res.redirect('/setup-2fa');
+    }
+});
+
 router.post('/login', passport.authenticate('local', {
-    successRedirect: '/dashboard',
+    successRedirect: '/test-login',
     failureRedirect: '/login',
     failureFlash: true
 }));
@@ -46,19 +56,22 @@ router.get('/dashboard', async (req, res) => {
 
     let blogs = []; // Définir blogs à une valeur par défaut
     let isAuthenticated = false;
+    let is2fa = false;
     try {
         if (req.isAuthenticated()) {
             isAuthenticated = true;
             blogs = await blogModel.getAllBlogs();
+            is2fa = await userModel.get2FaSecretUserById(req.user.user_id);
         } else {
             blogs = await blogModel.getAllBlogsPublic();
         }
+
     } catch (error) {
         console.error('Erreur lors de la récupération des blogs :', error);
         return res.status(500).send('Erreur lors de la récupération des blogs.');
     }
 
-    res.render('dashboard', { blogs, isAuthenticated });
+    res.render('dashboard', { blogs, isAuthenticated, is2fa });
 });
 
 // Route pour démarrer l'authentification Facebook

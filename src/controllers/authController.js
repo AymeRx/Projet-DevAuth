@@ -47,8 +47,6 @@ exports.generate2fa = async (req, res) => {
 
         res.render('setup-2fa', { imageUrl }); // Remplacez par votre vue EJS
 
-        console.log('Secret 2FA :', secret);
-
     } catch (error) {
         console.error('Erreur lors de la génération du QR Code :', error);
         res.status(500).send('Erreur serveur.');
@@ -58,8 +56,6 @@ exports.generate2fa = async (req, res) => {
 exports.verify2fa = async (req, res) => {
     const { token } = req.body;
     const user = req.user.user_id; // Assurez-vous que l'utilisateur est connecté
-
-    console.log('Token 2FA :', token);
 
     try {
         const secret = await userModel.get2faSecret(user);
