@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <!-- Ajoutez des liens vers des fichiers CSS ou d'autres ressources si nécessaire -->
+</head>
+<body>
+    <h1>Welcome to the Dashboard!</h1>
+    <p>You are logged in.</p>
+    <a href="/logout">Logout</a>
+
+    <h2>All Blogs:</h2>
+    <ul>
+        <% blogs.forEach(blog => { %>
+            <li>
+                <strong>Blog ID:</strong> <%= blog.blog_id %><br>
+                <strong>Nom:</strong> <%= blog.nom %><br>
+                <strong>Text:</strong> <%= blog.text %><br>
+                <!-- Ajoutez d'autres champs si nécessaire -->
+                <br>
+            </li>
+        <% }); %>
+    </ul>
+    <!-- Ajoutez d'autres éléments HTML au besoin -->
+</body>
+</html>

@@ -8,6 +8,11 @@ const path = require('path');
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: false }));
+
+// Correction de la configuration de la vue EJS
+app.set('views engine', 'ejs');
+app.set('views', path.join(__dirname, 'src', 'views'));
+
 initializePassport(passport);
 
 app.use(session({

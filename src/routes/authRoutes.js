@@ -1,8 +1,11 @@
 const express = require('express');
 const path = require('path');
 const router = express.Router();
+const app = express();
 const authController = require('../controllers/authController.js');
 const passport = require('passport');
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 router.get('/logout', (req, res) => {
     req.logout(function(err) {
@@ -21,6 +24,7 @@ router.post('/register', authController.register);
 router.get('/login', (req, res) => {
     if (req.isAuthenticated()) {
         res.sendFile(path.join(__dirname, '../../public/html/dashboard.html'));
+        // res.sendFile(path.join(__dirname, '../views/dashboard.ejs'));
     } else {
         res.sendFile(path.join(__dirname, '../../public/html/login.html'));
     }
@@ -34,6 +38,7 @@ router.post('/login', passport.authenticate('local', {
 
 router.get('/dashboard', authController.checkAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/html/dashboard.html'));
+    // res.sendFile(path.join(__dirname, '../views/dashboard.ejs'));
 });
 
 // Route pour démarrer l'authentification Facebook

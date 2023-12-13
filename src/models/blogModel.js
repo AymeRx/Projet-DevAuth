@@ -1,15 +1,15 @@
 const connection = require('../db');
 
-exports.getAllBlogs = () => {
-    return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM blogs';
-        connection.query(sql, [], (err, result) => {
-            if (err) {
-                reject(err);
-            } else {
-                console.log(result);
-                resolve(result); // Renvoie les résultats au lieu de les imprimer dans la console.
-            }
-        });
+exports.getAllBlogs = (req, res, next) => {
+    const sql = 'SELECT * FROM blogs';
+    connection.query(sql, [], (err, result) => {
+        if (err) {
+            // Gérer l'erreur et passer à l'erreur suivante avec next
+            next(err);
+        } else {
+            // Rendre la vue avec les résultats
+            console.log(result)
+            res.render('dashboard', { blogs: result });
+        }
     });
 };
