@@ -3,6 +3,7 @@ const path = require('path');
 const router = express.Router();
 const app = express();
 const authController = require('../controllers/authController.js');
+const blogModel = require('../models/blogModel.js');
 const passport = require('passport');
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -40,8 +41,24 @@ router.post('/login', passport.authenticate('local', {
     failureFlash: true
 }));
 
-router.get('/dashboard', authController.checkAuthenticated, (req, res) => {
-    res.render('dashboard');
+// router.get('/dashboard', authController.checkAuthenticated, async (req, res) => {
+router.get('/dashboard', async (req, res) => {
+   
+    let blogs = []; // Définir blogs à une valeur par défaut
+
+    try {
+        if (req.isAuthenticated()) {
+            blogs = await blogModel.getAllBlogs();
+        } else {
+            blogs = await blogModel.getAllBlogsPublic();
+        }
+        console.log(blogs);
+    } catch (error) {
+        console.error('Erreur lors de la récupération des blogs :', error);
+        return res.status(500).send('Erreur lors de la récupération des blogs.');
+    }
+
+    res.render('dashboard', { blogs });
 });
 
 // Route pour démarrer l'authentification Facebook
