@@ -25,8 +25,8 @@ router.post('/register', authController.register);
 router.get('/login', (req, res) => {
     if (req.isAuthenticated()) {
         // verification si le 2fa est activé
-        if (req.user.two_factor_enabled) {
-            res.redirect('/setup-2fa');
+        if (req.user.is2faEnabled) {
+            res.redirect('/verify-2fa');
         } else {
             res.redirect('/dashboard');
         }
@@ -87,6 +87,10 @@ router.get('/auth/google/callback',
 
 // Route pour démarrer l'authentification 2FA
 router.get('/setup-2fa', authController.checkAuthenticated, authController.generate2fa);
+
+router.get('/verify-2fa', authController.checkAuthenticated, (req, res) => {
+    res.render('verify-2fa');
+});
 
 // Route de vérification du token 2FA
 router.post('/verify-2fa', authController.checkAuthenticated, authController.verify2fa);

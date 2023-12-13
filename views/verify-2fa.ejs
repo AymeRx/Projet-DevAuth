@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vérification de l'authentification à deux facteurs</title>
+</head>
+<body>
+    <h1>Vérification de l'authentification à deux facteurs</h1>
+    <p>Veuillez entrer le code à six chiffres de votre application d'authentification.</p>
+    <form action="/verify-2fa" method="post">
+        <input type="text" name="token" placeholder="Entrez votre code à 6 chiffres" required>
+        <button type="submit">Vérifier</button>
+    </form>
+</body>
+</html>

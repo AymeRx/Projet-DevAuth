@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activer l'authentification à deux facteurs</title>
+</head>
+<body>
+    <h1>Activer l'authentification à deux facteurs</h1>
+    <p>Scannez ce QR code avec votre application d'authentification (comme Google Authenticator).</p>
+    <img src="<%= imageUrl %>" alt="QR Code pour l'authentification à deux facteurs">
+    <p>Après avoir scanné le QR code, entrez le code de votre application ci-dessous pour vérifier et activer la 2FA.</p>
+    <form action="/verify-2fa" method="post">
+        <input type="text" name="token" placeholder="Entrez votre code ici" required>
+        <button type="submit">Vérifier et Activer</button>
+    </form>
+</body>
+</html>

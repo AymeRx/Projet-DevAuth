@@ -35,7 +35,7 @@ exports.checkNotAuthenticated = (req, res, next) => {
 
 exports.generate2fa = async (req, res) => {
     try {
-        const user = req.user.email; // Assurez-vous que l'utilisateur est connecté
+        const user = req.user.user_id; // Assurez-vous que l'utilisateur est connecté
         const service = 'My App'; // Remplacez par le nom de votre application
         const secret = authenticator.generateSecret();
 
@@ -46,6 +46,9 @@ exports.generate2fa = async (req, res) => {
         const imageUrl = await qrcode.toDataURL(otpauth);
 
         res.render('setup-2fa', { imageUrl }); // Remplacez par votre vue EJS
+
+        console.log('Secret 2FA :', secret);
+
     } catch (error) {
         console.error('Erreur lors de la génération du QR Code :', error);
         res.status(500).send('Erreur serveur.');
@@ -54,17 +57,18 @@ exports.generate2fa = async (req, res) => {
 
 exports.verify2fa = async (req, res) => {
     const { token } = req.body;
-    const user = req.user.email; // Assurez-vous que l'utilisateur est connecté
+    const user = req.user.user_id; // Assurez-vous que l'utilisateur est connecté
+
+    console.log('Token 2FA :', token);
 
     try {
-        const { secret } = await userModel.get2faSecret(user);
+        const secret = await userModel.get2faSecret(user);
         const isValid = authenticator.verify({ token, secret });
 
         if (!isValid) throw new Error('Token invalide.');
 
         // Activez la 2FA dans la base de données pour l'utilisateur
         await userModel.enable2fa(user);
-
         res.redirect('/dashboard');
     } catch (error) {
         console.error('Erreur lors de la vérification du token 2FA :', error);

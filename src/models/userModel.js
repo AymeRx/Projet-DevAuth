@@ -13,10 +13,10 @@ exports.createUser = (username, hashedPassword, name) => {
     });
 };
 
-exports.update2faSecret = (username, secret) => {
+exports.update2faSecret = (userId, secret) => {
     return new Promise((resolve, reject) => {
-        const sql = 'UPDATE users SET 2fa_secret = ? WHERE mail = ?';
-        connection.query(sql, [secret, username], (err, result) => {
+        const sql = 'UPDATE users SET 2fa_secret = ? WHERE user_id = ?';
+        connection.query(sql, [secret, userId], (err, result) => {
             if (err) {
                 reject(err);
             } else {
@@ -26,11 +26,10 @@ exports.update2faSecret = (username, secret) => {
     });
 };
 
-
-exports.get2faSecret = (username) => {
+exports.get2faSecret = (userId) => {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT 2fa_secret FROM users WHERE mail = ?';
-        connection.query(sql, [username], (err, result) => {
+        const sql = 'SELECT 2fa_secret FROM users WHERE user_id = ?';
+        connection.query(sql, [userId], (err, result) => {
             if (err) {
                 reject(err);
             } else {
@@ -45,10 +44,11 @@ exports.get2faSecret = (username) => {
 };
 
 
-exports.enable2fa = (username) => {
+
+exports.enable2fa = (userId) => {
     return new Promise((resolve, reject) => {
-        const sql = 'UPDATE users SET is2faEnabled = TRUE WHERE mail = ?';
-        connection.query(sql, [username], (err, result) => {
+        const sql = 'UPDATE users SET is2faEnabled = TRUE WHERE user_id = ?';
+        connection.query(sql, [userId], (err, result) => {
             if (err) {
                 reject(err);
             } else {
