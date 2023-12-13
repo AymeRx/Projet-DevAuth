@@ -23,8 +23,7 @@ router.post('/register', authController.register);
 
 router.get('/login', (req, res) => {
     if (req.isAuthenticated()) {
-        res.sendFile(path.join(__dirname, '../../public/html/dashboard.html'));
-        // res.sendFile(path.join(__dirname, '../views/dashboard.ejs'));
+        res.render('/dashboard');
     } else {
         res.sendFile(path.join(__dirname, '../../public/html/login.html'));
     }
@@ -37,8 +36,7 @@ router.post('/login', passport.authenticate('local', {
 }));
 
 router.get('/dashboard', authController.checkAuthenticated, (req, res) => {
-    res.sendFile(path.join(__dirname, '../../public/html/dashboard.html'));
-    // res.sendFile(path.join(__dirname, '../views/dashboard.ejs'));
+    res.render('/dashboard');
 });
 
 // Route pour démarrer l'authentification Facebook
@@ -48,7 +46,7 @@ router.get('/auth/facebook', passport.authenticate('facebook'));
 router.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/login' }),
     (req, res) => {
         // Logique de succès, par exemple redirection vers le tableau de bord
-        res.redirect('/dashboard');
+        res.render('/dashboard');
     }
 );
 
