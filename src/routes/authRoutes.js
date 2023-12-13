@@ -3,6 +3,7 @@ const path = require('path');
 const router = express.Router();
 const app = express();
 const authController = require('../controllers/authController.js');
+const blogModel = require('../models/blogModel.js');
 const passport = require('passport');
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -22,11 +23,12 @@ router.get('/register', (req, res) => {
 router.post('/register', authController.register);
 
 router.get('/login', (req, res) => {
-    if (req.isAuthenticated()) {
-        res.render('/dashboard');
-    } else {
-        res.sendFile(path.join(__dirname, '../../public/html/login.html'));
-    }
+    // if (req.isAuthenticated()) {
+    //     res.render('dashboard');
+    // } else {
+    //     res.sendFile(path.join(__dirname, '../../public/html/login.html'));
+    // }
+    res.sendFile(path.join(__dirname, '../../public/html/login.html'));
 });
 
 router.post('/login', passport.authenticate('local', {
@@ -35,8 +37,24 @@ router.post('/login', passport.authenticate('local', {
     failureFlash: true
 }));
 
-router.get('/dashboard', authController.checkAuthenticated, (req, res) => {
-    res.render('/dashboard');
+// router.get('/dashboard', authController.checkAuthenticated, async (req, res) => {
+router.get('/dashboard', async (req, res) => {
+   
+    let blogs = []; // Définir blogs à une valeur par défaut
+
+    try {
+        if (req.isAuthenticated()) {
+            blogs = await blogModel.getAllBlogs();
+        } else {
+            blogs = await blogModel.getAllBlogsPublic();
+        }
+        console.log(blogs);
+    } catch (error) {
+        console.error('Erreur lors de la récupération des blogs :', error);
+        return res.status(500).send('Erreur lors de la récupération des blogs.');
+    }
+
+    res.render('dashboard', { blogs });
 });
 
 // Route pour démarrer l'authentification Facebook
@@ -46,7 +64,7 @@ router.get('/auth/facebook', passport.authenticate('facebook'));
 router.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/login' }),
     (req, res) => {
         // Logique de succès, par exemple redirection vers le tableau de bord
-        res.render('/dashboard');
+        res.render('dashboard');
     }
 );
 
@@ -60,7 +78,7 @@ router.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
     (req, res) => {
         // Logique de succès, par exemple redirection vers le tableau de bord
-        res.redirect('/dashboard');
+        res.redirect('dashboard');
     });
 
 

@@ -20,6 +20,7 @@ exports.checkAuthenticated = (req, res, next) => {
         return next();
     }
     res.redirect('/login');
+    // res.redirect('/dashboard');
 };
 
 exports.checkNotAuthenticated = (req, res, next) => {
@@ -27,15 +28,5 @@ exports.checkNotAuthenticated = (req, res, next) => {
         return res.redirect('/dashboard');
     }
     next();
-};
-
-exports.allBlogs = async (req, res, next) => {
-    try {
-        const blogs = await blogModel.getAllBlogs();
-        // Correction : Utilisation de res.render pour afficher la vue EJS
-        res.render('dashboard', { blogs });
-    } catch (error) {
-        console.error('Erreur lors de la récupération des blogs :', error);
-        res.status(500).send('Erreur lors de la récupération des blogs.');
-    }
+    // res.redirect('/dashboard');
 };
