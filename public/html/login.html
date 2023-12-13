@@ -9,17 +9,19 @@
         <h2>Login</h2>
         <form action="/login" method="post">
             <label for="username">Username:</label>
-            <input type="email" id="username" name="username" required>
+            <input type="email" id="username" name="username" placeholder="jean.dujardin@gmail.com" required>
 
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required>
-
-            <button type="submit">Login</button>
+            <div class="action-button">
+                <button type="submit">Login</button>
+                <a id="register" href="/register"><button type="button">Sign Up</button></a>
+            </div>
         </form>
 
         <div class="auth-links">
             <p>Connexion avec des apps externes :</p>
-            <a href="/auth/google">Login with Google</a><br>
+            <a class="btn btn-white google-button" href="/auth/google"><img src="../img/google.svg" class="google-logo">Login with Google</a><br>
             <a href="/auth/facebook">Login with Facebook</a>
         </div>
     </div>

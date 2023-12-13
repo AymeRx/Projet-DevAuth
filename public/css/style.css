@@ -18,6 +18,11 @@ h2 {
     text-align: center;
 }
 
+.action-button{
+    display: flex;
+    width: auto;
+}
+
 /* Form Styling */
 form {
     background: #fff;
@@ -41,7 +46,7 @@ input[type="email"], input[type="password"], input[type="text"] {
     border-radius: 4px;
 }
 
-button {
+button, #register {
     width: 100%;
     display: block;
     background-color: #007bff;
@@ -53,7 +58,7 @@ button {
     justify-content: center;
 }
 
-button:hover {
+button:hover, #register:hover {
     background-color: #0056b3;
 }
 
@@ -84,4 +89,26 @@ button:hover {
 
 .form-group:last-child {
     margin-right: 0;
+}
+
+.social-login-buttons > .btn {
+    margin-right: 8px;
+    margin-bottom: 6px;
+    text-align: center;
+    flex-grow: 1;
+}
+
+/* .btn.btn-white, .btn.btn-light {
+    background-color: var(--color-light, #0056b3);
+    color: var(--color-dark, #ffffff);
+} */
+
+.google-button {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+.google-button .google-logo {
+    margin-right: 12px;
 }

@@ -7,5 +7,18 @@
     <h1>Welcome to the Dashboard!</h1>
     <p>You are logged in.</p>
     <a href="/logout">Logout</a>
+
+    <h2>All Blogs:</h2>
+    <ul>
+        <% blogs.forEach(blog => { %>
+            <li>
+                <strong>Blog ID:</strong> <%= blog.blog_id %><br>
+                <strong>Nom:</strong> <%= blog.nom %><br>
+                <strong>Text:</strong> <%= blog.text %><br>
+                <!-- Add other fields as needed -->
+                <br>
+            </li>
+        <% }); %>
+    </ul>
 </body>
 </html>
