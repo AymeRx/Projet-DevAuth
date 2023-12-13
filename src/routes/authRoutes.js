@@ -43,22 +43,22 @@ router.post('/login', passport.authenticate('local', {
 
 // router.get('/dashboard', authController.checkAuthenticated, async (req, res) => {
 router.get('/dashboard', async (req, res) => {
-   
-    let blogs = []; // Définir blogs à une valeur par défaut
 
+    let blogs = []; // Définir blogs à une valeur par défaut
+    let isAuthenticated = false;
     try {
         if (req.isAuthenticated()) {
+            isAuthenticated = true;
             blogs = await blogModel.getAllBlogs();
         } else {
             blogs = await blogModel.getAllBlogsPublic();
         }
-        console.log(blogs);
     } catch (error) {
         console.error('Erreur lors de la récupération des blogs :', error);
         return res.status(500).send('Erreur lors de la récupération des blogs.');
     }
 
-    res.render('dashboard', { blogs });
+    res.render('dashboard', { blogs, isAuthenticated });
 });
 
 // Route pour démarrer l'authentification Facebook
