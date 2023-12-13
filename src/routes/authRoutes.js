@@ -23,7 +23,12 @@ router.post('/register', authController.register);
 
 router.get('/login', (req, res) => {
     if (req.isAuthenticated()) {
-        res.render('/dashboard');
+        // verification si le 2fa est activé
+        if (req.user.two_factor_enabled) {
+            res.redirect('/setup-2fa');
+        } else {
+            res.redirect('/dashboard');
+        }
     } else {
         res.sendFile(path.join(__dirname, '../../public/html/login.html'));
     }
@@ -36,7 +41,7 @@ router.post('/login', passport.authenticate('local', {
 }));
 
 router.get('/dashboard', authController.checkAuthenticated, (req, res) => {
-    res.render('/dashboard');
+    res.render('dashboard');
 });
 
 // Route pour démarrer l'authentification Facebook
@@ -46,7 +51,7 @@ router.get('/auth/facebook', passport.authenticate('facebook'));
 router.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/login' }),
     (req, res) => {
         // Logique de succès, par exemple redirection vers le tableau de bord
-        res.render('/dashboard');
+        res.render('dashboard');
     }
 );
 
@@ -60,8 +65,16 @@ router.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
     (req, res) => {
         // Logique de succès, par exemple redirection vers le tableau de bord
-        res.redirect('/dashboard');
+        res.redirect('dashboard');
     });
+
+// Route pour démarrer l'authentification 2FA
+router.get('/setup-2fa', authController.checkAuthenticated, authController.generate2fa);
+
+// Route de vérification du token 2FA
+router.post('/verify-2fa', authController.checkAuthenticated, authController.verify2fa);
+
+
 
 
 module.exports = router;
