@@ -8,9 +8,13 @@
 </head>
 <body>
     <h1>Welcome to the Dashboard!</h1>
-    <p>You are logged in.</p>
-    <a href="/logout">Logout</a>
-
+    <% if (isAuthenticated){%>
+        <p>You are logged in.</p>
+        <a href="/logout">Logout</a>
+    <% } else { %>
+        <p>You are log out.</p>
+        <a href="/login">Login</a>
+    <% } %>
     <h2>All Blogs:</h2>
     <ul>
         <% blogs.forEach(blog => { %>
