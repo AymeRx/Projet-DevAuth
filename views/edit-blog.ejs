@@ -31,7 +31,7 @@
         </div>
       </nav>
       <% editBlog.forEach(blog => { %>
-        <form action="/save-edit-blog/<%= blog.blog_id %>/<%= user_id %>" method="post">
+        <form action="/save-edit-blog/<%= blog.blog_id %>" method="post">
             <label for="label_blog">Title :</label>
             <input type="text" id="label_blog" name="label_blog" value="<%= blog.nom %>" required>
             <label for="description">Description :</label>

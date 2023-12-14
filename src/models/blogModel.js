@@ -67,3 +67,16 @@ exports.updateEditBlog = (blogId, title, text) => {
         });
     });
 };
+
+exports.addBlog = (user_id, title, text) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'INSERT INTO blogs (nom, text, user_id) VALUES (?, ?, ?)';
+        connection.query(sql, [title, text, user_id], (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};

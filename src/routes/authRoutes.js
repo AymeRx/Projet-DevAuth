@@ -116,10 +116,16 @@ router.get('/verify-2fa', authController.checkAuthenticated, (req, res) => {
 // Route pour afficher la page de vérification 2FA
 router.get('/my-blog',authController.checkAuthenticated, authController.getMyBlog);
 
-// Route pour afficher la page de vérification 2FA
-router.get('/edit-blog/:blog_id/:user_id', authController.getEditBlog);
+router.get("/add-blog/:user_id",(req, res) => {
+    const user_id = req.params.user_id;
+    res.render('add-blog', {user_id});
+});
+router.post("/add-blog/:user_id", authController.addBlog);
 
-router.post('/save-edit-blog/:blog_id/:user_id', authController.updateEditBlog);
+// Route pour afficher la page de vérification 2FA
+router.get('/edit-blog/:blog_id', authController.getEditBlog);
+
+router.post('/save-edit-blog/:blog_id', authController.updateEditBlog);
 
 // Route de vérification du token 2FA
 router.post('/verify-2fa', authController.checkAuthenticated, authController.verify2fa);

@@ -81,7 +81,7 @@ exports.getMyBlog = async (req, res) => {
         res.render("my-blog", { myBlogs, user });
     } catch (error) {
         console.error('Erreur lors de la récupération des blogs de l\'utilisateur ', userId, ' :', error);
-        res.status(400).send('Blogs non récupérés');
+        res.status(500).send('Blogs non récupérés');
     }
 }
 
@@ -94,7 +94,7 @@ exports.getEditBlog = async (req,res) => {
         res.render("edit-blog", { editBlog, user_id });
     } catch (error) {
         console.error('Erreur lors de la récupération du blog : ', blog_id, ' :', error);
-        res.status(400).send('Blog non récupéré');
+        res.status(500).send('Blog non récupéré');
     }
 };
 
@@ -102,14 +102,24 @@ exports.updateEditBlog = async (req,res) => {
     const blog_id = req.params.blog_id;
     const title = req.body.label_blog;
     const text = req.body.description;
-    const userId = req.params.user_id;
     try{
         await blogModel.updateEditBlog(blog_id, title, text);
-        const myBlogs = await blogModel.getBlogsByUserId(userId);
-        const user = await userModel.getUserById(userId);
-        res.render('my-blog', {myBlogs, user})
+        res.redirect("/my-blog");
     } catch (error) {
         console.error('Erreur lors de la modification du blog : ', blog_id, ' :', error);
-        res.status(400).send('Blog non modifié');
+        res.status(500).send('Blog non modifié');
+    }
+};
+
+exports.addBlog = async (req,res) => {
+    const user_id = req.params.user_id;
+    const title = req.body.label_blog;
+    const text = req.body.description;
+    try{
+        await blogModel.addBlog(user_id, title, text);
+        res.redirect("/my-blog");
+    } catch (error) {
+        console.error('Erreur lors de l\'ajout du blog : ', error);
+        res.status(500).send('Blog non ajouté');
     }
 };
