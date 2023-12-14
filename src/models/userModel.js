@@ -93,3 +93,16 @@ exports.getAllUsers = () => {
         });
     });
 };
+
+exports.getUserById = (userId) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT * FROM users WHERE user_id = ?';
+        connection.query(sql, [userId], (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+}

@@ -5,17 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <title>Dashboard</title>
+    <title>Edit Blog</title>
     <!-- Ajoutez des liens vers des fichiers CSS ou d'autres ressources si nécessaire -->
 </head>
 <body>
-    <h1>Welcome to the Dashboard!</h1>
-    <% if (!is2fa){ %>
-        <div class="alert alert-danger" role="alert">
-            Vous n'avez pas activé l'authentification à deux facteurs. <a href="/setup-2fa">Vous pouvez le faire dès maintenant.</a>
-        </div>
-    <% } %>
-
+    <h1>My Blogs</h1>
       <nav class="navbar navbar-expand-lg bg-body-tertiary position-absolute top-0 end-0">
         <div class="container-fluid">
           <a class="navbar-brand" href="#"></a>
@@ -29,42 +23,22 @@
                     <i class="fas fa-user"></i>
                 </a>
                 <ul class="dropdown-menu">
-                    <% if (isAuthenticated){%>
-                        <li><a href="/logout">Mes blogs</a></li>
-                        <li><a href="/logout">Logout</a></li>
-                    <% } else { %>
-                        <li><a href="/login">Login</a></li>
-                        <li><a href="/register">Signup</a></li>
-                    <% } %>
+                    <li><a href="/logout">Mes blogs</a></li>
+                    <li><a href="/logout">Logout</a></li>
                 </ul>
               </li>
           </div>
         </div>
       </nav>
-    
-    <!-- <h2>All Blogs:</h2> -->
-    <div class="card-group">
-        <% blogs.forEach(blog => { %>
-            <div class="card m-3">
-                <img src="<%= blog.image %>" class="card-img-top" alt="Image de <%= blog.nom %>">
-                <div class="card-body">
-                    <h5 class="card-title"><%= blog.nom %></h5>
-                    <p class="card-text"><%= blog.text %></p>
-                </div>
-                <div class="card-footer">
-                    <% const user = users.find(u => u.user_id === blog.user_id); %>
-                    <small class="text-body-secondary">Publié par <%= user ? user.name : 'Unknown' %> le <%= formatDate(blog.date) %></small>
-                </div>
-            </div>
-        <% }); %>
-    </div>
-    
-    <% function formatDate(date) { %>
-        <% const options = { year: 'numeric', month: 'long', day: 'numeric' }; %>
-        <%= new Date(date).toLocaleDateString('fr-FR', options) %>
-    <% } %>
-    <!-- Ajoutez d'autres éléments HTML au besoin -->
-
+      <% editBlog.forEach(blog => { %>
+        <form action="/save-edit-blog/<%= blog.blog_id %>/<%= user_id %>" method="post">
+            <label for="label_blog">Title :</label>
+            <input type="text" id="label_blog" name="label_blog" value="<%= blog.nom %>" required>
+            <label for="description">Description :</label>
+            <input type="text" id="description" name="description" value="<%= blog.text %>" required>
+            <input type="submit" value="Enregistrer">
+        </form>
+    <% }); %>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>

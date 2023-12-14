@@ -70,3 +70,46 @@ exports.verify2fa = async (req, res) => {
         res.status(400).send('Token invalide ou erreur serveur.');
     }
 };
+
+exports.getMyBlog = async (req, res) => {
+    const userId = req.user.user_id;
+
+    try{
+        const myBlogs = await blogModel.getBlogsByUserId(userId);
+        const user = await userModel.getUserById(userId);
+        console.log(user);
+        res.render("my-blog", { myBlogs, user });
+    } catch (error) {
+        console.error('Erreur lors de la récupération des blogs de l\'utilisateur ', userId, ' :', error);
+        res.status(400).send('Blogs non récupérés');
+    }
+}
+
+exports.getEditBlog = async (req,res) => {
+    const blog_id = req.params.blog_id;
+    const user_id = req.params.user_id;
+
+    try{
+        const editBlog = await blogModel.getBlogById(blog_id);
+        res.render("edit-blog", { editBlog, user_id });
+    } catch (error) {
+        console.error('Erreur lors de la récupération du blog : ', blog_id, ' :', error);
+        res.status(400).send('Blog non récupéré');
+    }
+};
+
+exports.updateEditBlog = async (req,res) => {
+    const blog_id = req.params.blog_id;
+    const title = req.body.label_blog;
+    const text = req.body.description;
+    const userId = req.params.user_id;
+    try{
+        await blogModel.updateEditBlog(blog_id, title, text);
+        const myBlogs = await blogModel.getBlogsByUserId(userId);
+        const user = await userModel.getUserById(userId);
+        res.render('my-blog', {myBlogs, user})
+    } catch (error) {
+        console.error('Erreur lors de la modification du blog : ', blog_id, ' :', error);
+        res.status(400).send('Blog non modifié');
+    }
+};

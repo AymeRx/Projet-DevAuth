@@ -28,3 +28,42 @@ exports.getAllBlogsPublic = () => {
         });
     });
 };
+
+exports.getBlogsByUserId = (userId) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT * FROM blogs WHERE user_id = ?'; // Requête SQL pour sélectionner les blogs publics
+        connection.query(sql, [userId], (err, result) => {
+            if (err) {
+                reject(err); // Rejette la promesse en cas d'erreur lors de l'exécution de la requête
+            } else {
+                resolve(result); // Résout la promesse avec le résultat de la requête
+            }
+        });
+    });
+};
+
+exports.getBlogById = (blogId) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT * FROM blogs WHERE blog_id = ?'; // Requête SQL pour sélectionner les blogs publics
+        connection.query(sql, [blogId], (err, result) => {
+            if (err) {
+                reject(err); // Rejette la promesse en cas d'erreur lors de l'exécution de la requête
+            } else {
+                resolve(result); // Résout la promesse avec le résultat de la requête
+            }
+        });
+    });
+};
+
+exports.updateEditBlog = (blogId, title, text) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'UPDATE blogs SET nom = ?, text = ? WHERE blog_id = ?';
+        connection.query(sql, [title, text, blogId], (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};

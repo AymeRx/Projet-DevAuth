@@ -79,7 +79,6 @@ router.get('/dashboard', async (req, res) => {
         console.error('Erreur lors de la récupération des blogs :', error);
         return res.status(500).send('Erreur lors de la récupération des blogs.');
     }
-    console.log(blogs);
     res.render('dashboard', { blogs, users, isAuthenticated, is2fa });
 });
 
@@ -113,6 +112,14 @@ router.get('/setup-2fa', authController.checkAuthenticated, authController.gener
 router.get('/verify-2fa', authController.checkAuthenticated, (req, res) => {
     res.render('verify-2fa');
 });
+
+// Route pour afficher la page de vérification 2FA
+router.get('/my-blog',authController.checkAuthenticated, authController.getMyBlog);
+
+// Route pour afficher la page de vérification 2FA
+router.get('/edit-blog/:blog_id/:user_id', authController.getEditBlog);
+
+router.post('/save-edit-blog/:blog_id/:user_id', authController.updateEditBlog);
 
 // Route de vérification du token 2FA
 router.post('/verify-2fa', authController.checkAuthenticated, authController.verify2fa);
