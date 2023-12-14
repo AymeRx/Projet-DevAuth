@@ -9,96 +9,75 @@ const userModel = require('../models/userModel.js');
 const passport = require('passport');
 const { register } = require('module');
 const e = require('express');
+const jwt = require('jsonwebtoken');
+const verifyJwt = require('../middlewares/auth');
 
 // Configuration du dossier statique
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Middleware pour vérifier l'état du 2FA
-const check2fa = async (req, res, next) => {
-    const user = req.user;
-    const is2faEnabled = await userModel.get2FaSecretUserById(user.user_id);
-
-    req.user.is2faEnabled = is2faEnabled;
-    next();
-};
-
 // Route de déconnexion
-router.get('/logout', (req, res) => {
+router.get('/logout', (req, res, next) => {
     req.logout(function(err) {
         if (err) { return next(err); }
-        res.redirect('/login');  // Rediriger l'utilisateur vers la page de connexion
+        // Vous pouvez ici effacer le JWT et d'autres informations de session si nécessaire
+        req.session.jwt = null; // Effacez le JWT de la session
+        req.session.is2faAuthenticated = false; // Réinitialisez le statut 2FA
+        res.redirect('/login'); // Redirigez l'utilisateur vers la page de connexion
     });
 });
 
-// Route d'affichage du formulaire d'inscription
-router.get('/register', (req, res) => {
-    res.render('register');
-});
-
-// Route de traitement du formulaire d'inscription
+// Routes pour l'inscription
+router.get('/register', (req, res) => res.render('register'));
 router.post('/register', authController.register);
 
-// Route d'affichage de la page de connexion
+// Routes pour la connexion
 router.get('/login', (req, res) => {
     if (req.isAuthenticated()) {
-        // Vérification si le 2FA est activé
-        if (req.user.is2faEnabled) {
-            res.redirect('/test-login');
-        } else {
-            res.redirect('/dashboard');
-        }
+        res.redirect('/dashboard');
     } else {
         res.render('login');
     }
 });
 
-// Route de vérification de l'authentification après le login
-router.get("/test-login", authController.checkAuthenticated, async (req, res) => {
-    // Vérification si le 2FA est activé
-    if (req.user.is2faEnabled) {
-        res.redirect('/verify-2fa');
-    } else {
-        res.redirect('/dashboard');
-    }
-});
-
-// Route de traitement du formulaire de connexion
 router.post('/login', passport.authenticate('local', {
-    successRedirect: '/dashboard',
     failureRedirect: '/login',
     failureFlash: true
-}));
-
-// Route d'affichage du tableau de bord
-router.get('/dashboard', async (req, res) => {
-
-    let blogs = []; // Définir blogs à une valeur par défaut
-    let isAuthenticated = false;
-    let is2fa = false;
-    let users = [];
+}), async (req, res) => {
     try {
-        // Si l'utilisateur est connecté,
-        if (req.isAuthenticated()) {
-            const is2faEnabled = await userModel.get2FaSecretUserById(req.user.user_id);
-            // Rediriger vers la vérification 2FA si 2FA est activé mais pas encore validé
-            // if (is2faEnabled && !req.session.is2faAuthenticated) {
-            //     console.log(req.session);
-            //     return res.redirect('/verify-2fa');
-            // }
-            isAuthenticated = true;
-            blogs = await blogModel.getAllBlogs();
-            is2fa = await userModel.get2FaSecretUserById(req.user.user_id);
-            users = await userModel.getAllUsers();
-        } 
-        else {
-            blogs = await blogModel.getAllBlogsPublic();
+        // Vérifiez si l'utilisateur a activé la 2FA
+        const is2faEnabled = await userModel.get2FaSecretUserById(req.user.user_id);
+
+        if (is2faEnabled) {
+            // Rediriger vers la page de vérification 2FA
+            res.redirect('/verify-2fa');
+        } else {
+            // Si la 2FA n'est pas activée, procédez à la connexion normale
+            const userPayload = { id: req.user.id, email: req.user.email };
+            const token = jwt.sign(userPayload, process.env.JWT_SECRET, { expiresIn: '1h' });
+            req.session.jwt = token;
+            res.redirect('/dashboard');
         }
 
     } catch (error) {
-        console.error('Erreur lors de la récupération des blogs :', error);
-        return res.status(500).send('Erreur lors de la récupération des blogs.');
+        console.error('Erreur lors de la vérification de la 2FA:', error);
+        res.status(500).send('Erreur interne du serveur');
     }
-    res.render('dashboard', { blogs, users, isAuthenticated, is2fa });
+});
+
+
+// Route du tableau de bord
+router.get('/dashboard', async (req, res) => {
+    try {
+        const isAuthenticated = req.isAuthenticated();
+        const is2fa = isAuthenticated ? await userModel.get2FaSecretUserById(req.user.user_id) : false;
+        const blogs = isAuthenticated ? await blogModel.getAllBlogs() : await blogModel.getAllBlogsPublic();
+        const users = isAuthenticated ? await userModel.getAllUsers() : [];
+
+        res.render('dashboard', { blogs, users, isAuthenticated, is2fa });
+    } catch (error) {
+        console.error('Erreur lors de la récupération des blogs ou des utilisateurs:', error);
+        res.status(500).send('Erreur serveur.');
+    }
 });
 
 // Route d'authentification Facebook
@@ -143,7 +122,7 @@ router.get('/verify-2fa', authController.checkAuthenticated, (req, res) => {
 });
 
 // Route pour afficher la page de vérification 2FA
-router.get('/my-blog',authController.checkAuthenticated, authController.getMyBlog);
+router.get('/my-blog', verifyJwt, authController.checkAuthenticated, authController.getMyBlog);
 
 router.get("/add-blog/:user_id",(req, res) => {
     const user_id = req.params.user_id;

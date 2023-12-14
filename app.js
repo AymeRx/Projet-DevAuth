@@ -5,6 +5,7 @@ const authRoutes = require('./src/routes/authRoutes');
 const initializePassport = require('./src/utils/passport-config');
 const app = express();
 const path = require('path');
+const jwt = require('jsonwebtoken');
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: false }));
