@@ -8,9 +8,19 @@ const blogModel = require('../models/blogModel.js');
 const userModel = require('../models/userModel.js');
 const passport = require('passport');
 const { register } = require('module');
+const e = require('express');
 
 // Configuration du dossier statique
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Middleware pour vérifier l'état du 2FA
+const check2fa = async (req, res, next) => {
+    const user = req.user;
+    const is2faEnabled = await userModel.get2FaSecretUserById(user.user_id);
+
+    req.user.is2faEnabled = is2faEnabled;
+    next();
+};
 
 // Route de déconnexion
 router.get('/logout', (req, res) => {
@@ -48,13 +58,13 @@ router.get("/test-login", authController.checkAuthenticated, async (req, res) =>
     if (req.user.is2faEnabled) {
         res.redirect('/verify-2fa');
     } else {
-        res.redirect('/setup-2fa');
+        res.redirect('/dashboard');
     }
 });
 
 // Route de traitement du formulaire de connexion
 router.post('/login', passport.authenticate('local', {
-    successRedirect: '/test-login',
+    successRedirect: '/dashboard',
     failureRedirect: '/login',
     failureFlash: true
 }));
@@ -67,12 +77,20 @@ router.get('/dashboard', async (req, res) => {
     let is2fa = false;
     let users = [];
     try {
+        // Si l'utilisateur est connecté,
         if (req.isAuthenticated()) {
+            const is2faEnabled = await userModel.get2FaSecretUserById(req.user.user_id);
+            // Rediriger vers la vérification 2FA si 2FA est activé mais pas encore validé
+            // if (is2faEnabled && !req.session.is2faAuthenticated) {
+            //     console.log(req.session);
+            //     return res.redirect('/verify-2fa');
+            // }
             isAuthenticated = true;
             blogs = await blogModel.getAllBlogs();
             is2fa = await userModel.get2FaSecretUserById(req.user.user_id);
             users = await userModel.getAllUsers();
-        } else {
+        } 
+        else {
             blogs = await blogModel.getAllBlogsPublic();
         }
 
@@ -107,11 +125,21 @@ router.get('/auth/google/callback',
     });
 
 // Route pour démarrer l'authentification 2FA
-router.get('/setup-2fa', authController.checkAuthenticated, authController.generate2fa);
+router.get('/setup-2fa', authController.checkAuthenticated, authController.generate2fa, (req, res) => {
+    if (req.user.is2faEnabled) {
+        res.redirect('/dashboard');
+    } else {
+        res.render('setup-2fa', { imageUrl: req.user.qrCode });
+    }
+});
 
 // Route pour afficher la page de vérification 2FA
 router.get('/verify-2fa', authController.checkAuthenticated, (req, res) => {
-    res.render('verify-2fa');
+    if (req.user.is2faEnabled) {
+        res.render('verify-2fa');
+    } else {
+        res.redirect('/dashboard');
+    }
 });
 
 // Route pour afficher la page de vérification 2FA
