@@ -71,13 +71,6 @@ exports.verify2fa = async (req, res) => {
         // Mettez à jour la session pour indiquer que l'utilisateur a réussi la vérification 2FA
         req.session.is2faAuthenticated = true;
 
-        // Générer le JWT après une vérification 2FA réussie
-        const userPayload = { id: req.user.id, email: req.user.email };
-        const jwtToken = jwt.sign(userPayload, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-        // Stocker le JWT dans la session
-        req.session.jwt = jwtToken;
-
         res.redirect('/dashboard');
     } catch (error) {
         console.error('Erreur lors de la vérification du token 2FA :', error);

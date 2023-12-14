@@ -44,6 +44,14 @@ router.post('/login', passport.authenticate('local', {
     failureFlash: true
 }), async (req, res) => {
     try {
+        // Générer le JWT après une connexion réussie
+        const userPayload = { id: req.user.id, email: req.user.email };
+        const jwtToken = jwt.sign(userPayload, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        // Stocker le JWT et le statut 2FA par défaut dans la session
+        req.session.jwt = jwtToken;
+        req.session.is2faAuthenticated = false;
+
         // Vérifiez si l'utilisateur a activé la 2FA
         const is2faEnabled = await userModel.get2FaSecretUserById(req.user.user_id);
 
@@ -51,10 +59,7 @@ router.post('/login', passport.authenticate('local', {
             // Rediriger vers la page de vérification 2FA
             res.redirect('/verify-2fa');
         } else {
-            // Si la 2FA n'est pas activée, procédez à la connexion normale
-            const userPayload = { id: req.user.id, email: req.user.email };
-            const token = jwt.sign(userPayload, process.env.JWT_SECRET, { expiresIn: '1h' });
-            req.session.jwt = token;
+            // Si la 2FA n'est pas activée, rediriger vers le tableau de bord
             res.redirect('/dashboard');
         }
 
@@ -65,6 +70,7 @@ router.post('/login', passport.authenticate('local', {
 });
 
 
+
 // Route du tableau de bord
 router.get('/dashboard', async (req, res) => {
     try {
@@ -72,7 +78,8 @@ router.get('/dashboard', async (req, res) => {
         const is2fa = isAuthenticated ? await userModel.get2FaSecretUserById(req.user.user_id) : false;
         const blogs = isAuthenticated ? await blogModel.getAllBlogs() : await blogModel.getAllBlogsPublic();
         const users = isAuthenticated ? await userModel.getAllUsers() : [];
-
+        console.log(req.session);
+        console.log(req.session.passport["user"]);
         res.render('dashboard', { blogs, users, isAuthenticated, is2fa });
     } catch (error) {
         console.error('Erreur lors de la récupération des blogs ou des utilisateurs:', error);
