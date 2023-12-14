@@ -80,3 +80,16 @@ exports.addBlog = (user_id, title, text) => {
         });
     });
 };
+
+exports.deleteBlog = (blogId) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'DELETE FROM blogs WHERE blog_id = ?';
+        connection.query(sql, [blogId], (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};

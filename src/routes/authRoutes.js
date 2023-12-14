@@ -154,6 +154,8 @@ router.post("/add-blog/:user_id", authController.addBlog);
 // Route pour afficher la page de vérification 2FA
 router.get('/edit-blog/:blog_id', authController.getEditBlog);
 
+router.get('/delete-blog/:blog_id', authController.deleteBlog)
+
 router.post('/save-edit-blog/:blog_id', authController.updateEditBlog);
 
 // Route de vérification du token 2FA

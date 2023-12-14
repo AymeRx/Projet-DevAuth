@@ -123,3 +123,15 @@ exports.addBlog = async (req,res) => {
         res.status(500).send('Blog non ajouté');
     }
 };
+
+exports.deleteBlog = async (req,res) => {
+    const blog_id = req.params.blog_id;
+
+    try{
+        await blogModel.deleteBlog(blog_id);
+        res.redirect("/my-blog");
+    } catch (error){
+        console.error('Erreur lors de la supression du blog : ', error);
+        res.status(500).send('Blog non supprimé');
+    }
+};
