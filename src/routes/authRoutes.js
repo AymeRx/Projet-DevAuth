@@ -7,6 +7,7 @@ const authController = require('../controllers/authController.js');
 const blogModel = require('../models/blogModel.js');
 const userModel = require('../models/userModel.js');
 const passport = require('passport');
+const { register } = require('module');
 
 // Configuration du dossier statique
 app.use(express.static(path.join(__dirname, 'public')));
@@ -21,7 +22,7 @@ router.get('/logout', (req, res) => {
 
 // Route d'affichage du formulaire d'inscription
 router.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../public/html/register.html'));
+    res.render('register');
 });
 
 // Route de traitement du formulaire d'inscription
@@ -37,7 +38,7 @@ router.get('/login', (req, res) => {
             res.redirect('/dashboard');
         }
     } else {
-        res.sendFile(path.join(__dirname, '../../public/html/login.html'));
+        res.render('login');
     }
 });
 
