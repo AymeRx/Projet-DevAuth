@@ -3,6 +3,7 @@ const userModel = require('../models/userModel');
 const blogModel = require('../models/blogModel');
 const qrcode = require('qrcode');
 const { authenticator } = require('otplib');
+const jwt = require('jsonwebtoken');
 
 exports.register = async (req, res) => {
     const { email, password, firstName, lastName } = req.body;
@@ -54,22 +55,36 @@ exports.generate2fa = async (req, res) => {
 
 exports.verify2fa = async (req, res) => {
     const { token } = req.body;
-    const user = req.user.user_id; // Assurez-vous que l'utilisateur est connecté
+    const user = req.user.user_id;
 
     try {
         const secret = await userModel.get2faSecret(user);
         const isValid = authenticator.verify({ token, secret });
 
-        if (!isValid) throw new Error('Token invalide.');
+        if (!isValid) {
+            throw new Error('Token invalide.');
+        }
 
         // Activez la 2FA dans la base de données pour l'utilisateur
         await userModel.enable2fa(user);
+
+        // Mettez à jour la session pour indiquer que l'utilisateur a réussi la vérification 2FA
+        req.session.is2faAuthenticated = true;
+
+        // Générer le JWT après une vérification 2FA réussie
+        const userPayload = { id: req.user.id, email: req.user.email };
+        const jwtToken = jwt.sign(userPayload, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        // Stocker le JWT dans la session
+        req.session.jwt = jwtToken;
+
         res.redirect('/dashboard');
     } catch (error) {
         console.error('Erreur lors de la vérification du token 2FA :', error);
         res.status(400).send('Token invalide ou erreur serveur.');
     }
 };
+
 
 exports.getMyBlog = async (req, res) => {
     const userId = req.user.user_id;
