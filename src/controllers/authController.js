@@ -46,7 +46,6 @@ exports.generate2fa = async (req, res) => {
         const imageUrl = await qrcode.toDataURL(otpauth);
 
         res.render('setup-2fa', { imageUrl }); // Remplacez par votre vue EJS
-
     } catch (error) {
         console.error('Erreur lors de la génération du QR Code :', error);
         res.status(500).send('Erreur serveur.');

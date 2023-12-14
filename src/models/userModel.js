@@ -1,5 +1,7 @@
+// Importation de la connexion à la base de données
 const connection = require('../db');
 
+// Fonction pour créer un utilisateur dans la base de données
 exports.createUser = (username, hashedPassword, name) => {
     return new Promise((resolve, reject) => {
         const sql = 'INSERT INTO users (mail, password, name) VALUES (?, ?, ?)';
@@ -13,6 +15,7 @@ exports.createUser = (username, hashedPassword, name) => {
     });
 };
 
+// Fonction pour mettre à jour la clé secrète 2FA d'un utilisateur
 exports.update2faSecret = (userId, secret) => {
     return new Promise((resolve, reject) => {
         const sql = 'UPDATE users SET 2fa_secret = ? WHERE user_id = ?';
@@ -26,6 +29,7 @@ exports.update2faSecret = (userId, secret) => {
     });
 };
 
+// Fonction pour récupérer la clé secrète 2FA d'un utilisateur
 exports.get2faSecret = (userId) => {
     return new Promise((resolve, reject) => {
         const sql = 'SELECT 2fa_secret FROM users WHERE user_id = ?';
@@ -43,8 +47,7 @@ exports.get2faSecret = (userId) => {
     });
 };
 
-
-
+// Fonction pour activer la 2FA pour un utilisateur
 exports.enable2fa = (userId) => {
     return new Promise((resolve, reject) => {
         const sql = 'UPDATE users SET is2faEnabled = TRUE WHERE user_id = ?';
@@ -58,6 +61,7 @@ exports.enable2fa = (userId) => {
     });
 };
 
+// Fonction pour vérifier si un utilisateur a activé la 2FA
 exports.get2FaSecretUserById = (userId) => {
     return new Promise((resolve, reject) => {
         const sql = 'SELECT * FROM users WHERE user_id = ? and 2fa_secret=NULL';
@@ -68,7 +72,7 @@ exports.get2FaSecretUserById = (userId) => {
                 console.log(result);
                 if (result && result.length > 0) {
                     resolve(false);
-                }else{
+                } else {
                     resolve(true);
                 }
             }
@@ -76,3 +80,16 @@ exports.get2FaSecretUserById = (userId) => {
     });
 };
 
+// Fonction pour récupérer tous les utilisateurs de la base de données
+exports.getAllUsers = () => {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT * FROM users';
+        connection.query(sql, [], (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};

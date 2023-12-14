@@ -1,3 +1,4 @@
+// Importation des modules nécessaires
 const express = require('express');
 const path = require('path');
 const router = express.Router();
@@ -7,8 +8,10 @@ const blogModel = require('../models/blogModel.js');
 const userModel = require('../models/userModel.js');
 const passport = require('passport');
 
+// Configuration du dossier statique
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Route de déconnexion
 router.get('/logout', (req, res) => {
     req.logout(function(err) {
         if (err) { return next(err); }
@@ -16,16 +19,18 @@ router.get('/logout', (req, res) => {
     });
 });
 
-
+// Route d'affichage du formulaire d'inscription
 router.get('/register', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/html/register.html'));
 });
 
+// Route de traitement du formulaire d'inscription
 router.post('/register', authController.register);
 
+// Route d'affichage de la page de connexion
 router.get('/login', (req, res) => {
     if (req.isAuthenticated()) {
-        // verification si le 2fa est activé
+        // Vérification si le 2FA est activé
         if (req.user.is2faEnabled) {
             res.redirect('/test-login');
         } else {
@@ -36,8 +41,9 @@ router.get('/login', (req, res) => {
     }
 });
 
+// Route de vérification de l'authentification après le login
 router.get("/test-login", authController.checkAuthenticated, async (req, res) => {
-    // verification si le 2fa est activé
+    // Vérification si le 2FA est activé
     if (req.user.is2faEnabled) {
         res.redirect('/verify-2fa');
     } else {
@@ -45,23 +51,26 @@ router.get("/test-login", authController.checkAuthenticated, async (req, res) =>
     }
 });
 
+// Route de traitement du formulaire de connexion
 router.post('/login', passport.authenticate('local', {
     successRedirect: '/test-login',
     failureRedirect: '/login',
     failureFlash: true
 }));
 
-// router.get('/dashboard', authController.checkAuthenticated, async (req, res) => {
+// Route d'affichage du tableau de bord
 router.get('/dashboard', async (req, res) => {
 
     let blogs = []; // Définir blogs à une valeur par défaut
     let isAuthenticated = false;
     let is2fa = false;
+    let users = [];
     try {
         if (req.isAuthenticated()) {
             isAuthenticated = true;
             blogs = await blogModel.getAllBlogs();
             is2fa = await userModel.get2FaSecretUserById(req.user.user_id);
+            users = await userModel.getAllUsers();
         } else {
             blogs = await blogModel.getAllBlogsPublic();
         }
@@ -70,14 +79,14 @@ router.get('/dashboard', async (req, res) => {
         console.error('Erreur lors de la récupération des blogs :', error);
         return res.status(500).send('Erreur lors de la récupération des blogs.');
     }
-
-    res.render('dashboard', { blogs, isAuthenticated, is2fa });
+    console.log(blogs);
+    res.render('dashboard', { blogs, users, isAuthenticated, is2fa });
 });
 
-// Route pour démarrer l'authentification Facebook
+// Route d'authentification Facebook
 router.get('/auth/facebook', passport.authenticate('facebook'));
 
-// Route de callback après l'authentification Facebook
+// Callback après l'authentification Facebook
 router.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/login' }),
     (req, res) => {
         // Logique de succès, par exemple redirection vers le tableau de bord
@@ -85,12 +94,11 @@ router.get('/auth/facebook/callback', passport.authenticate('facebook', { failur
     }
 );
 
-
-// Route pour démarrer l'authentification Google
+// Route d'authentification Google
 router.get('/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-// Route de callback après l'authentification Google
+// Callback après l'authentification Google
 router.get('/auth/google/callback', 
     passport.authenticate('google', { failureRedirect: '/login' }),
     (req, res) => {
@@ -101,6 +109,7 @@ router.get('/auth/google/callback',
 // Route pour démarrer l'authentification 2FA
 router.get('/setup-2fa', authController.checkAuthenticated, authController.generate2fa);
 
+// Route pour afficher la page de vérification 2FA
 router.get('/verify-2fa', authController.checkAuthenticated, (req, res) => {
     res.render('verify-2fa');
 });
@@ -108,7 +117,5 @@ router.get('/verify-2fa', authController.checkAuthenticated, (req, res) => {
 // Route de vérification du token 2FA
 router.post('/verify-2fa', authController.checkAuthenticated, authController.verify2fa);
 
-
-
-
+// Exporte le routeur
 module.exports = router;

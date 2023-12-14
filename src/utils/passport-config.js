@@ -1,13 +1,23 @@
+// Importation des stratégies de passport
 const LocalStrategy = require('passport-local').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+
+// Module de hachage de mot de passe
 const bcrypt = require('bcrypt');
+
+// Connexion à la base de données
 const connection = require('../db');
+
+// Modèle d'utilisateur
 const User = require('../models/userModel');
+
+// Configuration des variables d'environnement
 require('dotenv').config(); 
 
 module.exports = function initialize(passport) {
-    // LocalStrategy
+
+    // Stratégie locale (connexion avec un nom d'utilisateur et un mot de passe)
     passport.use(new LocalStrategy({ usernameField: 'username' }, (username, password, done) => {
         connection.query('SELECT * FROM users WHERE mail = ?', [username], (err, result) => {
             if (err) { return done(err); }
@@ -25,7 +35,7 @@ module.exports = function initialize(passport) {
         });
     }));
 
-    // FacebookStrategy
+    // Stratégie Facebook
     passport.use(new FacebookStrategy({
         clientID: process.env.FACEBOOK_APP_ID,
         clientSecret: process.env.FACEBOOK_APP_SECRET,
@@ -56,14 +66,12 @@ module.exports = function initialize(passport) {
         }
     }));
 
-
+    // Stratégie Google
     passport.use(new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: "/auth/google/callback"
-    },
-    function(accessToken, refreshToken, profile, done) {
-        // Ici, vous vérifiez si l'utilisateur existe déjà dans votre base de données
+    }, (accessToken, refreshToken, profile, done) => {
         try {
             connection.query('SELECT * FROM users WHERE other_app_id = ?', [profile.id], (err, result) => {
                 if (err) { return done(err); }
@@ -89,8 +97,7 @@ module.exports = function initialize(passport) {
         }
     }));
 
-
-    // Sérialisation et Désérialisation
+    // Sérialisation et Désérialisation des utilisateurs
     passport.serializeUser((user, done) => done(null, user.user_id));
     passport.deserializeUser((id, done) => {
         connection.query('SELECT * FROM users WHERE user_id = ?', [id], (err, result) => {
