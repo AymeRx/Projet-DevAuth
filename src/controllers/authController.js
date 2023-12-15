@@ -56,7 +56,7 @@ exports.verify2fa = async (req, res) => {
         // Mettez à jour la session pour indiquer que l'utilisateur a réussi la vérification 2FA
         req.session.is2faAuthenticated = true;
 
-        res.redirect('/dashboard');
+        res.redirect('/');
     } catch (error) {
         console.error('Erreur lors de la vérification du token 2FA :', error);
         res.status(400).send('Token invalide ou erreur serveur.');

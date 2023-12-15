@@ -33,7 +33,7 @@ router.post('/register', authController.register);
 // Routes pour la connexion
 router.get('/login', (req, res) => {
     if (req.isAuthenticated()) {
-        res.redirect('/dashboard');
+        res.redirect('/');
     } else {
         res.render('login');
     }
@@ -60,7 +60,7 @@ router.post('/login', passport.authenticate('local', {
             res.redirect('/verify-2fa');
         } else {
             // Si la 2FA n'est pas activée, rediriger vers le tableau de bord
-            res.redirect('/dashboard');
+            res.redirect('/');
         }
 
     } catch (error) {
@@ -72,7 +72,7 @@ router.post('/login', passport.authenticate('local', {
 
 
 // Route du tableau de bord
-router.get('/dashboard', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const isAuthenticated = req.isAuthenticated();
         const is2fa = isAuthenticated ? await userModel.get2FaSecretUserById(req.user.user_id) : false;
@@ -111,7 +111,7 @@ router.get('/auth/google/callback',
 // Route pour démarrer l'authentification 2FA
 router.get('/setup-2fa', verifyJwt, authController.generate2fa, (req, res) => {
     if (req.user.is2faEnabled) {
-        res.redirect('/dashboard');
+        res.redirect('/');
     } else {
         res.render('setup-2fa', { imageUrl: req.user.qrCode });
     }
@@ -122,7 +122,7 @@ router.get('/verify-2fa', verifyJwt, (req, res) => {
     if (req.user.is2faEnabled) {
         res.render('verify-2fa');
     } else {
-        res.redirect('/dashboard');
+        res.redirect('/');
     }
 });
 
