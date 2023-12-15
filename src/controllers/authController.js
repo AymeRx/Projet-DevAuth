@@ -69,7 +69,6 @@ exports.getMyBlog = async (req, res) => {
     try{
         const myBlogs = await blogModel.getBlogsByUserId(userId);
         const user = await userModel.getUserById(userId);
-        console.log(user);
         res.render("my-blog", { myBlogs, user });
     } catch (error) {
         console.error('Erreur lors de la récupération des blogs de l\'utilisateur ', userId, ' :', error);
