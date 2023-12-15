@@ -120,7 +120,7 @@ exports.updateEditBlog = async (req,res) => {
 };
 
 exports.addBlog = async (req,res) => {
-    const user_id = req.params.user_id;
+    const user_id = req.session.passport["user"];
     const title = req.body.label_blog;
     const text = req.body.description;
     try{
