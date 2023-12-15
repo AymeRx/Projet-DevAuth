@@ -129,6 +129,7 @@ exports.deleteBlog = async (req,res) => {
 };
 
 exports.displayDashboard = async (req,res) =>{
+    console.log(req.session);
     let user_id = null;
     if (req.session.passport){
         user_id = req.session.passport["user"];
@@ -141,9 +142,9 @@ exports.displayDashboard = async (req,res) =>{
         if (user_id != null && verifyJwt){
             blogs = await blogModel.getAllBlogs();
             is2faEnabled = await userModel.get2faEnabled(user_id);
-            if (is2faEnabled == 1 ){
+            if (is2faEnabled[0].is2faEnabled == 1){
                 is2faEnabled = true;
-            }else{
+            } else {
                 is2faEnabled = false;
             }
             isAuthenticated = true; 
