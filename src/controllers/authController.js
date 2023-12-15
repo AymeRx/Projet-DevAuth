@@ -44,7 +44,7 @@ exports.verify2fa = async (req, res) => {
     const userId = req.session.passport["user"];
 
     try {
-        const secret = await userModel.get2faSecret(user);
+        const secret = await userModel.get2faSecret(userId);
         const isValid = authenticator.verify({ token, secret });
 
         if (!isValid) {
@@ -52,7 +52,7 @@ exports.verify2fa = async (req, res) => {
         }
 
         // Activez la 2FA dans la base de données pour l'utilisateur
-        await userModel.enable2fa(user);
+        await userModel.enable2fa(userId);
 
         // Mettez à jour la session pour indiquer que l'utilisateur a réussi la vérification 2FA
         req.session.is2faAuthenticated = true;
