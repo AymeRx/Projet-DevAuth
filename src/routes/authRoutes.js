@@ -129,7 +129,7 @@ router.get('/verify-2fa', authController.checkAuthenticated, (req, res) => {
 });
 
 // Route pour afficher la page de vérification 2FA
-router.get('/my-blog', verifyJwt, authController.checkAuthenticated, authController.getMyBlog);
+router.get('/my-blog', authController.getMyBlog);
 
 router.get("/add-blog",(req, res) => {
     const user_id = req.session.passport["user"];
