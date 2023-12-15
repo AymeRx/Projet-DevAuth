@@ -81,7 +81,14 @@ router.get('/auth/facebook', passport.authenticate('facebook'));
 router.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/login' }),
     (req, res) => {
         // Logique de succès, par exemple redirection vers le tableau de bord
-        res.render('dashboard');
+        // Générer le JWT après une connexion réussie
+        const userPayload = { id: req.user.id, email: req.user.email };
+        const jwtToken = jwt.sign(userPayload, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        // Stocker le JWT et le statut 2FA par défaut dans la session
+        req.session.jwt = jwtToken;
+
+        res.render('/');
     }
 );
 
@@ -94,7 +101,14 @@ router.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
     (req, res) => {
         // Logique de succès, par exemple redirection vers le tableau de bord
-        res.redirect('dashboard');
+        // Générer le JWT après une connexion réussie
+        const userPayload = { id: req.user.id, email: req.user.email };
+        const jwtToken = jwt.sign(userPayload, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        // Stocker le JWT et le statut 2FA par défaut dans la session
+        req.session.jwt = jwtToken;
+
+        res.redirect('/');
     });
 
 // Route pour démarrer l'authentification 2FA
