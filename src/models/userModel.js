@@ -106,3 +106,16 @@ exports.getUserById = (userId) => {
         });
     });
 }
+
+exports.get2faEnabled = (userId) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT is2faEnabled FROM users WHERE user_id = ?';
+        connection.query(sql, [userId], (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+}

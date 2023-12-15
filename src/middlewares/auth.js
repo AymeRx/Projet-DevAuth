@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 const verifyJwt = (req, res, next) => {
     const token = req.session.jwt;
-    if (!token && !req.session.isAuthentified()) {
+    if (!token && !req.session.isAuthentified) {
         return res.status(401).send('Accès refusé. Veuillez vous connecter.');
     }
 

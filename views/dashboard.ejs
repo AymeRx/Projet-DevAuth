@@ -10,6 +10,15 @@
 </head>
 <body>
     <h1>Welcome to the Dashboard!</h1>
+        <% if (is2faEnabled == false && isAuthenticated){ %>
+            <div class="alert alert-danger" role="alert">
+               La vérification a deux facteurs n'est pas activée. Pour effectuer des modifications, veuillez l'activer. <a href="/setup-2fa">Activer l'authentification a deux facteurs !</a>
+            </div>
+        <% } else if (!isAuthenticated) { %>
+            <div class="alert alert-danger" role="alert">
+               Veuillez vous connecter si vous voulez accéder à plus de contenus <a href="/login">Se connecter</a>
+             </div>
+        <% } %>
 
       <nav class="navbar navbar-expand-lg bg-body-tertiary position-absolute top-0 end-0">
         <div class="container-fluid">

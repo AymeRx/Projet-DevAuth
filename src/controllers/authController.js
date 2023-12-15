@@ -4,6 +4,7 @@ const blogModel = require('../models/blogModel');
 const qrcode = require('qrcode');
 const { authenticator } = require('otplib');
 const jwt = require('jsonwebtoken');
+const verifyJwt = require('../middlewares/auth');
 
 exports.register = async (req, res) => {
     const { email, password, firstName, lastName } = req.body;
@@ -28,7 +29,7 @@ exports.generate2fa = async (req, res) => {
         // Enregistrez le secret dans la base de données pour l'utilisateur
         await userModel.update2faSecret(userId, secret);
 
-        const otpauth = authenticator.keyuri(user, service, secret);
+        const otpauth = authenticator.keyuri(userId, service, secret);
         const imageUrl = await qrcode.toDataURL(otpauth);
 
         res.render('setup-2fa', { imageUrl }); // Remplacez par votre vue EJS
@@ -124,5 +125,32 @@ exports.deleteBlog = async (req,res) => {
     } catch (error){
         console.error('Erreur lors de la supression du blog : ', error);
         res.status(500).send('Blog non supprimé');
+    }
+};
+
+exports.displayDashboard = async (req,res) =>{
+    let user_id = null;
+    if (req.session.passport){
+        user_id = req.session.passport["user"];
+    }
+    let blogs = await blogModel.getAllBlogsPublic();
+    let users = await userModel.getAllUsers();
+    let is2faEnabled = false;
+    let isAuthenticated = false;
+    try {
+        if (user_id != null && verifyJwt){
+            blogs = await blogModel.getAllBlogs();
+            is2faEnabled = await userModel.get2faEnabled(user_id);
+            if (is2faEnabled == 1 ){
+                is2faEnabled = true;
+            }else{
+                is2faEnabled = false;
+            }
+            isAuthenticated = true; 
+        }
+        res.render('dashboard', { blogs, users, is2faEnabled, isAuthenticated});
+    } catch (error) {
+        console.error('Erreur lors de la récupération des blogs ou des utilisateurs:', error);
+        res.status(500).send('Erreur serveur.');
     }
 };

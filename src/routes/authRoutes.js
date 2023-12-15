@@ -72,18 +72,7 @@ router.post('/login', passport.authenticate('local', {
 
 
 // Route du tableau de bord
-router.get('/', async (req, res) => {
-    try {
-        const isAuthenticated = req.isAuthenticated();
-        const is2fa = isAuthenticated ? await userModel.get2FaSecretUserById(req.user.user_id) : false;
-        const blogs = isAuthenticated ? await blogModel.getAllBlogs() : await blogModel.getAllBlogsPublic();
-        const users = isAuthenticated ? await userModel.getAllUsers() : [];
-        res.render('dashboard', { blogs, users, isAuthenticated, is2fa });
-    } catch (error) {
-        console.error('Erreur lors de la récupération des blogs ou des utilisateurs:', error);
-        res.status(500).send('Erreur serveur.');
-    }
-});
+router.get('/', authController.displayDashboard);
 
 // Route d'authentification Facebook
 router.get('/auth/facebook', passport.authenticate('facebook'));
