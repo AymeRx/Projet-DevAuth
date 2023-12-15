@@ -36,7 +36,7 @@ exports.checkNotAuthenticated = (req, res, next) => {
 
 exports.generate2fa = async (req, res) => {
     try {
-        const user = req.user.user_id; // Assurez-vous que l'utilisateur est connecté
+        const userId = req.session.passport["user"]; // Assurez-vous que l'utilisateur est connecté
         const service = 'My App'; // Remplacez par le nom de votre application
         const secret = authenticator.generateSecret();
 
@@ -55,7 +55,7 @@ exports.generate2fa = async (req, res) => {
 
 exports.verify2fa = async (req, res) => {
     const { token } = req.body;
-    const user = req.user.user_id;
+    const userId = req.session.passport["user"];
 
     try {
         const secret = await userModel.get2faSecret(user);
@@ -80,8 +80,7 @@ exports.verify2fa = async (req, res) => {
 
 
 exports.getMyBlog = async (req, res) => {
-    const userId = req.user.user_id;
-
+    const userId = req.session.passport["user"];
     try{
         const myBlogs = await blogModel.getBlogsByUserId(userId);
         const user = await userModel.getUserById(userId);
@@ -95,7 +94,7 @@ exports.getMyBlog = async (req, res) => {
 
 exports.getEditBlog = async (req,res) => {
     const blog_id = req.params.blog_id;
-    const user_id = req.params.user_id;
+    const userId = req.session.passport["user"];
 
     try{
         const editBlog = await blogModel.getBlogById(blog_id);
