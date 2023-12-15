@@ -78,8 +78,6 @@ router.get('/dashboard', async (req, res) => {
         const is2fa = isAuthenticated ? await userModel.get2FaSecretUserById(req.user.user_id) : false;
         const blogs = isAuthenticated ? await blogModel.getAllBlogs() : await blogModel.getAllBlogsPublic();
         const users = isAuthenticated ? await userModel.getAllUsers() : [];
-        console.log(req.session);
-        console.log(req.session.passport["user"]);
         res.render('dashboard', { blogs, users, isAuthenticated, is2fa });
     } catch (error) {
         console.error('Erreur lors de la récupération des blogs ou des utilisateurs:', error);
@@ -111,7 +109,7 @@ router.get('/auth/google/callback',
     });
 
 // Route pour démarrer l'authentification 2FA
-router.get('/setup-2fa', authController.checkAuthenticated, authController.generate2fa, (req, res) => {
+router.get('/setup-2fa', verifyJwt, authController.generate2fa, (req, res) => {
     if (req.user.is2faEnabled) {
         res.redirect('/dashboard');
     } else {
@@ -120,7 +118,7 @@ router.get('/setup-2fa', authController.checkAuthenticated, authController.gener
 });
 
 // Route pour afficher la page de vérification 2FA
-router.get('/verify-2fa', authController.checkAuthenticated, (req, res) => {
+router.get('/verify-2fa', verifyJwt, (req, res) => {
     if (req.user.is2faEnabled) {
         res.render('verify-2fa');
     } else {
@@ -129,7 +127,8 @@ router.get('/verify-2fa', authController.checkAuthenticated, (req, res) => {
 });
 
 // Route pour afficher la page de vérification 2FA
-router.get('/my-blog', authController.getMyBlog);
+
+router.get('/my-blog', verifyJwt, authController.getMyBlog);
 
 router.get("/add-blog",(req, res) => {
     const user_id = req.session.passport["user"];
@@ -145,7 +144,7 @@ router.get('/delete-blog/:blog_id', authController.deleteBlog)
 router.post('/save-edit-blog/:blog_id', authController.updateEditBlog);
 
 // Route de vérification du token 2FA
-router.post('/verify-2fa', authController.checkAuthenticated, authController.verify2fa);
+router.post('/verify-2fa', verifyJwt, authController.verify2fa);
 
 // Exporte le routeur
 module.exports = router;
