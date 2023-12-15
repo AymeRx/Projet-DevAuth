@@ -41,7 +41,7 @@ exports.generate2fa = async (req, res) => {
         const secret = authenticator.generateSecret();
 
         // Enregistrez le secret dans la base de données pour l'utilisateur
-        await userModel.update2faSecret(user, secret);
+        await userModel.update2faSecret(userId, secret);
 
         const otpauth = authenticator.keyuri(user, service, secret);
         const imageUrl = await qrcode.toDataURL(otpauth);
@@ -98,7 +98,7 @@ exports.getEditBlog = async (req,res) => {
 
     try{
         const editBlog = await blogModel.getBlogById(blog_id);
-        res.render("edit-blog", { editBlog, user_id });
+        res.render("edit-blog", { editBlog, userId });
     } catch (error) {
         console.error('Erreur lors de la récupération du blog : ', blog_id, ' :', error);
         res.status(500).send('Blog non récupéré');
